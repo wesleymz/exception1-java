@@ -1,4 +1,6 @@
-package entities;
+package model.entities;
+
+import model.exceptions.DomainException;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,6 +18,11 @@ public class Reservation {
     }
 
     public Reservation(Integer roomNumber, Date chekIn, Date chekOut) {
+
+        if (!chekOut.after(chekIn)) {
+            throw new DomainException("Check-out date must be before check-in date");
+        }
+
         this.roomNumber = roomNumber;
         this.chekIn = chekIn;
         this.chekOut = chekOut;
@@ -38,24 +45,22 @@ public class Reservation {
     }
 
     public long duration() {
-        long diff =  chekOut.getTime() - chekIn.getTime();
+        long diff = chekOut.getTime() - chekIn.getTime();
         return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
     }
 
-    public String updateDates(Date chekIn, Date chekOut) {
+    public void updateDates(Date chekIn, Date chekOut) {
 
-        Date now =  new Date();
+        Date now = new Date();
         if (chekIn.before(now) || chekOut.before(now)) {
-            return "Reservation dates for update must be future dates";
+            throw new DomainException("Reservation dates for update must be future dates");
         }
         if (!chekOut.after(chekIn)) {
-            return "Check-out date must be before check-in date";
+            throw new DomainException("Check-out date must be before check-in date");
         }
 
         this.chekIn = chekIn;
         this.chekOut = chekOut;
-
-        return null;
 
     }
 
